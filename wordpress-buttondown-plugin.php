@@ -17,8 +17,8 @@ function get_buttondown_subscription_status() {
     global $key_is_regular;
     global $key_is_premium;
 
-    $is_regular = $_COOKIE[$key_is_regular];
-    $is_premium = $_COOKIE[$key_is_premium];
+    $is_regular = isset( $_COOKIE[$key_is_regular] );
+    $is_premium = isset( $_COOKIE[$key_is_premium] );
 
     return array(
         'is_regular' => $is_regular,
@@ -29,7 +29,7 @@ function get_buttondown_subscription_status() {
 function fetch_api_data($email = '') {
 
     if (empty($email)) {
-        return;
+        return array('error' => true);
     }
 
     global $api_key;
@@ -48,14 +48,14 @@ function fetch_api_data($email = '') {
     $response = wp_remote_get($api_url, $args);
     
     if ( is_wp_error( $response ) ) {
-        return;
+        return array('error' => true);
     }
     
     $body = wp_remote_retrieve_body( $response );
     $data = json_decode( $body, true );
 
     if ( !isset( $data['subscriber_type'] ) ) {
-        return false;
+        return array('nosub' => true);
     }
 
     $is_regular = isset( $data['subscriber_type'] ) && ( $data['subscriber_type'] == 'regular');
@@ -72,13 +72,20 @@ function fetch_api_data($email = '') {
 function register_custom_api_endpoint() {
     register_rest_route('buttondown/v1', '/lookup/', array(
         'methods' => 'POST',
-        'callback' => 'handle_buttondown_request',
-        'permission_callback' => '__return_true',
+        'callback' => 'handle_wp_buttondown_request',
+        'permission_callback' => function () {
+            $origin = get_http_origin();
+            $expected_origin = 'https://' . $_SERVER['SERVER_NAME'];
+            if ( $origin === $expected_origin ) {
+                return true;
+            }
+            return false;
+    }
     ));
 }
 add_action('rest_api_init', 'register_custom_api_endpoint');
 
-function handle_buttondown_request($request) {
+function handle_wp_buttondown_request($request) {
     global $routes;
     global $key_is_regular;
     global $key_is_premium;
@@ -86,12 +93,18 @@ function handle_buttondown_request($request) {
     $email = sanitize_email($request->get_param('email'));
     
     if (empty($email)) {
-        return new WP_Error('missing_email', 'Email parameter is required', array('status' => 400));
+        wp_redirect($routes['error']);
+        exit();
     }
     
     $result = fetch_api_data($email);
 
-    if ( !$result ) {
+    if ( isset( $result["error"] )) {
+        wp_redirect($routes['error']);
+        exit();
+    }
+
+    if ( isset( $result["nosub"] )) {
         wp_redirect($routes['no-subscription']);
         exit();
     }
@@ -111,26 +124,53 @@ function handle_buttondown_request($request) {
 }
 
 // Create shortcodes to conditionally display content
-function do_buttondown_regular_shortcode($atts, $content = null) {
+function do_wp_buttondown_regular_shortcode($atts, $content = null) {
 
     $status = get_buttondown_subscription_status();
 
     if ( $status['is_regular'] ) {
         return do_shortcode($content);
+    } else {
+        return do_wp_buttondown_notice();
     }
-    return '';
 }
 
-function do_buttondown_premium_shortcode($atts, $content = null) {
+function do_wp_buttondown_premium_shortcode($atts, $content = null) {
     $status = get_buttondown_subscription_status();
 
     if ( $status['is_premium'] ) {
         return do_shortcode($content);
+    } else {
+        return do_wp_buttondown_notice(true);
     }
-    return '';
 }
 
-add_shortcode('buttondown_regular', 'do_buttondown_regular_shortcode');
-add_shortcode('buttondown_premium', 'do_buttondown_premium_shortcode');
+function do_wp_buttondown_notice($isPremium = false) {
+    global $routes;
+    $subscriber_status = ($isPremium == true) ? 'premium' : '';
+    ob_start();
+    ?>
+    <div id="wp-buttondown-notice">
+        <p>This content is for <?= $subscriber_status ?> subscribers only!<br /><a href="<?= $routes['login'] ?>">Log in here.</a></p>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+function do_wp_buttondown_check_form() {
+    ob_start();
+    ?>
+    <form class="wp-buttondown-check" method="post" action="/wp-json/buttondown/v1/lookup">
+        <p>Enter your email to confirm your subscription.<br />Your email will not be recorded.</p>
+        <input type="email" name="email" required />
+        <button>Submit</button>
+    </form>
+    <?php
+    return ob_get_clean();
+}
+
+add_shortcode('wp_buttondown_regular', 'do_wp_buttondown_regular_shortcode');
+add_shortcode('wp_buttondown_premium', 'do_wp_buttondown_premium_shortcode');
+add_shortcode('wp_buttondown_check_form', 'do_wp_buttondown_check_form');
 
 ?>
