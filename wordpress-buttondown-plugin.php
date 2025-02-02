@@ -173,4 +173,41 @@ add_shortcode('wp_buttondown_regular', 'do_wp_buttondown_regular_shortcode');
 add_shortcode('wp_buttondown_premium', 'do_wp_buttondown_premium_shortcode');
 add_shortcode('wp_buttondown_check_form', 'do_wp_buttondown_check_form');
 
+
+/* Settings menu  */
+
+function wp_buttondown_options_page_html() {
+    if ( !current_user_can( 'manage_options' ) ) {
+          return;
+      }
+      ?>
+      <div class="wrap">
+          <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+      <h2>Hello, settings!</h2>
+          <form action="" method="post">
+              <?php
+              submit_button( __( 'Save Settings', 'textdomain' ) );
+              ?>
+          </form>
+      </div>
+      <?php
+  }
+  
+  function wporg_options_page() {
+      $hookname = add_submenu_page(
+          'options-general.php',
+          'Wordpress with Buttondown Settings',
+          'WP Buttondown',
+          'manage_options',
+          'wp_buttondown',
+          'wp_buttondown_options_page_html'
+      );
+  
+      // add_action( 'load-' . $hookname, 'wporg_options_page_html_submit' );
+  }
+  
+  add_action('admin_menu', 'wporg_options_page');
+  
+
+
 ?>
