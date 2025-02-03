@@ -179,35 +179,83 @@ add_shortcode('wp_buttondown_check_form', 'do_wp_buttondown_check_form');
 function wp_buttondown_options_page_html() {
     if ( !current_user_can( 'manage_options' ) ) {
           return;
-      }
+    }
+    if (isset($_POST['api_token'])) {
+        update_option('wp_buttondown_settings', $_POST);
+        echo '<p>I have the token!' . esc_html($_POST['api_token']) . '</p>';
+    }
       ?>
       <div class="wrap">
           <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-      <h2>Hello, settings!</h2>
-          <form action="" method="post">
+          <form action="options-general.php?page=wp_buttondown" method="post">
               <?php
-              submit_button( __( 'Save Settings', 'textdomain' ) );
+              settings_fields( 'wp_buttondown' );
+              do_settings_sections( 'wp_buttondown' );
+              submit_button( 'Save settings' );
               ?>
           </form>
       </div>
       <?php
+      
   }
   
-  function wporg_options_page() {
-      $hookname = add_submenu_page(
-          'options-general.php',
-          'Wordpress with Buttondown Settings',
-          'WP Buttondown',
-          'manage_options',
-          'wp_buttondown',
-          'wp_buttondown_options_page_html'
-      );
-  
-      // add_action( 'load-' . $hookname, 'wporg_options_page_html_submit' );
-  }
-  
-  add_action('admin_menu', 'wporg_options_page');
-  
+function wporg_options_page_options_init() {
 
+    $opts = array(
+        'api_token' => '',
+        'regular_cookie' => '',
+        'premium_cookie' => '',
+    );
+
+    add_option('wp_buttondown_settings', $opts);
+
+    register_setting('wp_buttondown', 'wp_buttondown_settings',
+    );
+
+    add_settings_section(
+        'wp_buttondown_settings_section',
+        'General settings',
+        'wp_buttondown_settings_section_callback',
+        'wp_buttondown'
+    );
+
+    add_settings_field(
+		'wp_buttondown_api_token',
+		'Buttondown API token',
+        'wp_buttondown_settings_field_callback',
+		'wp_buttondown',
+		'wp_buttondown_settings_section'
+	);
+}
+
+
+add_action( 'admin_init', 'wporg_options_page_options_init' );
+
+
+// register  the actual page
+function wporg_options_page_options_page() {
+    $hookname = add_options_page(
+        'Wordpress with Buttondown Settings',
+        'WP Buttondown',
+        'manage_options',
+        'wp_buttondown',
+        'wp_buttondown_options_page_html'
+    );
+}
+add_action( 'admin_menu', 'wporg_options_page_options_page' );
+
+function wp_buttondown_settings_section_callback($args) {
+    echo '<p>Use these settings to configure your Buttondown setup in Wordpress.</p>';
+}
+
+function wp_buttondown_settings_field_callback($args) {
+
+    $setting = get_option('wp_buttondown_settings');
+    ?>      
+    <p>API Token <input type="text" name="api_token" value="<?php echo isset( $setting['api_token'] ) ? esc_attr( $setting['api_token'] ) : ''; ?>"></p>
+    <p>Regular cookie name <input type="text" name="regular_cookie" value="<?php echo isset( $setting['regular_cookie'] ) ? esc_attr( $setting['regular_cookie'] ) : ''; ?>"></p>
+    <p>Premium cookie name<input type="text" name="premium_cookie" value="<?php echo isset( $setting['premium_cookie'] ) ? esc_attr( $setting['premium_cookie'] ) : ''; ?>"></p>
+    <?php
+}
 
 ?>
