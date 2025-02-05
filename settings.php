@@ -69,7 +69,7 @@ function wp_buttondown_settings_field_callback($args) {
 
   <table class="form-table">
     <tr>
-      <th>API Token</th>
+      <th>Buttondown API Token</th>
       <td>
         <input type="text" name="api_token" value="<?php echo isset( $setting['api_token'] ) ? esc_attr( $setting['api_token'] ) : ''; ?>" required />
       </td>
