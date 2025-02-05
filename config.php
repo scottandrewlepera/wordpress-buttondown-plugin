@@ -11,7 +11,7 @@ $routes = array(
   'login' => $s['login'],
   'success' => $s['success'],
   'error' => $s['error'],
-  'no-subscription' => $s['no-subscription']
+  'nosub' => $s['nosub']
 );
 
 ?>

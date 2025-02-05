@@ -1,22 +1,23 @@
 <?php
 
 /* Settings menu  */
+
+include 'create-pages.php';
   
 function wp_buttondown_settings_init() {
 
   $opts = array(
-      'api_token' => '',
-      'subscribe_page' => '',
-      'regular_cookie' => '',
-      'premium_cookie' => '',
-      'login' => '/buttondown/login',
-      'success' => '/buttondown/success',
-      'error' => '/buttondown/error',
-      'no-subscription' => '/buttondown/nosub',
-      'pages_created' => false
+    'api_token' => '',
+    'subscribe_page' => '',
+    'regular_cookie' => '',
+    'premium_cookie' => '',
+    'login' => 'buttondown-login',
+    'success' => 'buttondown-success',
+    'error' => 'buttondown-error',
+    'nosub' => 'buttondown-nosub',
   );
 
-  add_option('wp_buttondown_settings', $opts);
+  update_option('wp_buttondown_settings', $opts);
 
   register_setting(
     'wp_buttondown',
@@ -97,7 +98,9 @@ function wp_buttondown_settings_field_callback($args) {
   </table>
 
   <h2>Landing page configuration</h2>
-  <p>These are the pages that visitors will be redirected to for the login process. You must create these pages yourself.</p>
+  <p>These are the pages that visitors will be redirected to for the login process. You must create these pages yourself, or the plugin can create them for you.</p>
+
+  <p>Note: you must delete existing pages if you want to use the same landing page URLs.</p>
 
   <table class="form-table">
     <tr>
@@ -121,55 +124,70 @@ function wp_buttondown_settings_field_callback($args) {
     <tr>
       <th>No subscription landing page</th>
       <td>
-        <input type="text" name="no-subscription" value="<?php echo isset( $setting['no-subscription'] ) ? esc_attr( $setting['no-subscription'] ) : ''; ?>" required />
+        <input type="text" name="nosub" value="<?php echo isset( $setting['nosub'] ) ? esc_attr( $setting['nosub'] ) : ''; ?>" required />
+      </td>
+    </tr>
+    <tr>
+      <th>Create pages on update?</th>
+      <td>
+        <input type="checkbox" name="create_pages" />
       </td>
     </tr>
   </table>
   <?php
 }
 
-function sanitize_cookie_name($name) {
-  // Allowed characters per RFC 6265
+function wp_buttondown_sanitize_cookie_name($name) {
+  // Allowed characters
   $allowed_chars = "/[^!#$%&'*+\-.^_`|~A-Za-z0-9]/";
-  
   // Remove any disallowed characters
   return preg_replace($allowed_chars, '', $name);
 } 
 
 function wp_buttondown_settings_page_html() {
   if ( !current_user_can( 'manage_options' ) ) {
-        return;
+    return;
   }
   if (isset($_POST['api_token'])) {
 
-      $new_opts = array(
-        'api_token' => sanitize_text_field($_POST['api_token']),
-        'subscribe_page' => sanitize_url($_POST['subscribe_page']),
-        'regular_cookie' => sanitize_cookie_name($_POST['regular_cookie']),
-        'premium_cookie' => sanitize_cookie_name($_POST['premium_cookie']),
-        'login' => sanitize_text_field($_POST['login']),
-        'success' => sanitize_text_field($_POST['success']),
-        'error' => sanitize_text_field($_POST['error']),
-        'no-subscription' => sanitize_text_field($_POST['no-subscription'])
-      );
+    $new_opts = array(
+      'api_token' => sanitize_text_field($_POST['api_token']),
+      'subscribe_page' => sanitize_url($_POST['subscribe_page']),
+      'regular_cookie' => wp_buttondown_sanitize_cookie_name($_POST['regular_cookie']),
+      'premium_cookie' => wp_buttondown_sanitize_cookie_name($_POST['premium_cookie']),
+      'login' => sanitize_text_field($_POST['login']),
+      'success' => sanitize_text_field($_POST['success']),
+      'error' => sanitize_text_field($_POST['error']),
+      'nosub' => sanitize_text_field($_POST['nosub'])
+    );
 
-      $success = update_option('wp_buttondown_settings', $new_opts);
-      if ($success === true) {
-          echo '<div class="updated"><p>Settings updated.</p></div>';
+    $success = update_option('wp_buttondown_settings', $new_opts);
+    if ($success === true) {
+        echo '<div class="updated"><p>Settings updated.</p></div>';
+    } else {
+      echo '<div class="error"><p>Update failed.</p></div>';
+    }
+
+    if (isset($_POST['create_pages'])) {
+      $page_results = wp_buttondown_settings_create_pages();
+      if ($page_results['code'] == 0) {
+        echo '<div class="updated"><p>Pages created.</p></div>';
       } else {
-        echo '<div class="error"><p>Update failed.</p></div>';
+        $page_errors = join('<br />', $page_results['errors']);
+        echo "<div class=\"error\">$page_errors</div>";
       }
+    }
   }
   ?>
   <div class="wrap">
-      <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-      <form action="options-general.php?page=wp_buttondown" method="post">
-          <?php
-          settings_fields( 'wp_buttondown' );
-          do_settings_fields( 'wp_buttondown', 'wp_buttondown_settings_section' );
-          submit_button( 'Save settings' );
-          ?>
-      </form>
+    <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+    <form action="options-general.php?page=wp_buttondown" method="post">
+      <?php
+      settings_fields( 'wp_buttondown' );
+      do_settings_fields( 'wp_buttondown', 'wp_buttondown_settings_section' );
+      submit_button( 'Save settings' );
+      ?>
+    </form>
   </div>
   <?php
 }

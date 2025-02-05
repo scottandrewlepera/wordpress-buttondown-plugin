@@ -106,7 +106,7 @@ function handle_wp_buttondown_request($request) {
     }
 
     if ( isset( $result["nosub"] )) {
-        wp_redirect($routes['no-subscription']);
+        wp_redirect($routes['nosub']);
         exit();
     }
 
