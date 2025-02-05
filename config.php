@@ -1,14 +1,16 @@
 <?php
 
-$api_key = "Token 1053c08a-fe65-4302-818f-831e4af5956e";
-$key_is_regular = "99fde7ab";
-$key_is_premium = "a7fg66fd";
+$s = get_option('wp_buttondown_settings');
+
+$api_key = $s['api_token'];
+$key_is_regular = $s['regular_cookie'];
+$key_is_premium = $s['premium_cookie'];
 
 $routes = array(
-  'login' => '/login',
-  'success' => '/success',
-  'error' => '/error',
-  'no-subscription' => '/nosub'
+  'login' => $s['login'],
+  'success' => $s['success'],
+  'error' => $s['error'],
+  'no-subscription' => $s['no-subscription']
 );
 
 ?>
