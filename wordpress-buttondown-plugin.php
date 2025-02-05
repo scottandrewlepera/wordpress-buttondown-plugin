@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Wordpress + Buttondown Integration (Beta)
+ * Plugin Name: WP Buttondown (Beta)
  * Description: Create subscriber-only content on your Wordpress site for your Buttondown list subscribers.
  * Version: 0.1.0   
  * Author: Scott Andrew LePera
@@ -167,6 +167,10 @@ function do_wp_buttondown_check_form() {
         <button>Submit</button>
     </form>
     <?php
+    global $subscribe_page;
+    if ( isset($subscribe_page) && $subscribe_page != '' ) {
+        echo( "<p>Not a subscriber? <a href=\"$subscribe_page\">Subscribe here!</a></p>" );
+    }
     return ob_get_clean();
 }
 

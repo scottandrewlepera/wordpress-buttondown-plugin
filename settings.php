@@ -6,6 +6,7 @@ function wp_buttondown_settings_init() {
 
   $opts = array(
       'api_token' => '',
+      'subscribe_page' => '',
       'regular_cookie' => '',
       'premium_cookie' => '',
       'login' => '/buttondown/login',
@@ -43,7 +44,7 @@ add_action( 'admin_init', 'wp_buttondown_settings_init' );
 // register the page and add it as a Settings submenu
 function wp_buttondown_settings_page() {
   $hookname = add_options_page(
-      'Wordpress with Buttondown',
+      'WP Buttondown (Beta)',
       'WP Buttondown',
       'manage_options',
       'wp_buttondown',
@@ -72,6 +73,12 @@ function wp_buttondown_settings_field_callback($args) {
       <th>Buttondown API Token</th>
       <td>
         <input type="text" name="api_token" value="<?php echo isset( $setting['api_token'] ) ? esc_attr( $setting['api_token'] ) : ''; ?>" required />
+      </td>
+    <tr>
+    <tr>
+      <th>Buttondown subscription page (optional)</th>
+      <td>
+        <input type="text" name="subscribe_page" value="<?php echo isset( $setting['subscribe_page'] ) ? esc_attr( $setting['subscribe_page'] ) : ''; ?>" placeholder="https://buttondown.com/your-cool-newsletter/" />
       </td>
     <tr>
     <tr>
@@ -121,6 +128,14 @@ function wp_buttondown_settings_field_callback($args) {
   <?php
 }
 
+function sanitize_cookie_name($name) {
+  // Allowed characters per RFC 6265
+  $allowed_chars = "/[^!#$%&'*+\-.^_`|~A-Za-z0-9]/";
+  
+  // Remove any disallowed characters
+  return preg_replace($allowed_chars, '', $name);
+} 
+
 function wp_buttondown_settings_page_html() {
   if ( !current_user_can( 'manage_options' ) ) {
         return;
@@ -129,8 +144,9 @@ function wp_buttondown_settings_page_html() {
 
       $new_opts = array(
         'api_token' => sanitize_text_field($_POST['api_token']),
-        'regular_cookie' => sanitize_text_field($_POST['regular_cookie']),
-        'premium_cookie' => sanitize_text_field($_POST['premium_cookie']),
+        'subscribe_page' => sanitize_url($_POST['subscribe_page']),
+        'regular_cookie' => sanitize_cookie_name($_POST['regular_cookie']),
+        'premium_cookie' => sanitize_cookie_name($_POST['premium_cookie']),
         'login' => sanitize_text_field($_POST['login']),
         'success' => sanitize_text_field($_POST['success']),
         'error' => sanitize_text_field($_POST['error']),
