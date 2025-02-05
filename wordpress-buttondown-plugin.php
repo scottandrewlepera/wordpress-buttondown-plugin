@@ -1,12 +1,12 @@
 <?php
 /**
- * Plugin Name: Wordpress Buttondown test plugin
- * Description: Allows conditional content based on Buttondown subscription status.
- * Version: 0.1.0
- * Author: Scott Andrew LePera scottandrew.com
+ * Plugin Name: Wordpress + Buttondown Integration (Beta)
+ * Description: Create subscriber-only content on your Wordpress site for your Buttondown list subscribers.
+ * Version: 0.1.0   
+ * Author: Scott Andrew LePera
+ * Author URI: https://scottandrew.com
  */
 
- // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
@@ -112,7 +112,7 @@ function handle_wp_buttondown_request($request) {
 
     $expires = time() + 60 * 60 * 24 * 30; // one month
 
-    if ( $result['is_regular'] ) {
+    if ( $result['is_regular'] || $result['is_premium'] ) {
         setcookie($key_is_regular, true, $expires, '/');
     }
 
