@@ -1,14 +1,16 @@
 # Wordpress + Buttondown Integration Plugin (Beta)
 
-Create subscriber-only content on your Wordpress site for your [Buttondown](https://buttondown.com) list subscribers. Use as a soft paywall to encourage both regular and paid subscriptions.
+Connect your [Buttondown](https://buttondown.com) newsletter to your Wordpress website and encourage subscriptions with subscribers-only content.
 
 ## How it works
 
-This plugin enables shortcodes that allow content to be hidden from non-subscribers. It uses the [Buttondown API](https://docs.buttondown.com/api-introduction) to confirm if an email address is subscribed and returns a cookie indicating that the subscriber is either regular (free) or premium (paid).
+This plugin uses your Buttondown subscriber list as a "soft paywall" for special content on your Wordpress site. Once the plugin is set up, you can author Wordpress content can only be seen by your Buttondown subscribers. You can also create separate content for paid vs. free subscribers, encouraging paid subscriptions.
+
+Visitors will be asked to login with the email they used to subscribe to your Buttondown newsletter. The plugin then uses the [Buttondown API](https://docs.buttondown.com/api-introduction) to confirm if an email address is subscribed to your newsletter and if they are free or paid subscribers.
 
 ## Important caveats
 
-- This is a lightweight integration. There are no passwords involved, just a lookup to confirm an email is subscribed to your Buttondown list.
+- This is a lightweight integration. There are no passwords involved, just a lookup to confirm an email is subscribed to your Buttondown newsletter.
 - Usage may subject your website to GDPR data protections, maybe? It's up to you to figure this out.
 
 ## Requirements
@@ -30,11 +32,12 @@ You'll need:
 
 ## Settings
 
-Before you can use the plugin, you need to configure it. Go to **Settings > WP Buttondown** to see your configuration options. All fields are required.
+Before you can use the plugin, you need to configure it. Go to **Settings > WP Buttondown** to see your configuration options.
 
 ### Buttondown and cookie settings
 
 * **Buttondown API Token** - The API token from your Buttondown account. You will need to activate API usage on your account.
+* **Buttondown subscription page (optional)** - The URL of your Buttondown newsletter subscription page, either at buttondown.com or somewhere on your Wordpress site.
 * **Regular subscriber cookie name** - The name of the cookie used to identify a regular (free) subscriber.
 * **Premium subscriber cookie name** - The name of the cookie used to identify a premium (paid) subscriber.
 
@@ -42,9 +45,13 @@ Before you can use the plugin, you need to configure it. Go to **Settings > WP B
 
 ### Landing page configuration
 
-These are the pages that visitors will be redirected to for the login process. You must create these pages yourself. The default values are there as suggestions.
+These are the pages that visitors will be redirected to for the login process. You must create these pages yourself, or the plugin can create them for you. The default values are there as suggestions.
 
-### Creating the login form
+> ⚠️ The plugin cannot create pages that already exist. You must either delete the existing pages or choose different page names.
+
+> ⚠️ Landing pages are always top-level pages and cannot have a parent.
+
+### Adding the login form
 
 Once you've created the login page, you can place the login form on it with the `wp_buttondown_check_form` shortcode.
 
