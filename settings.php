@@ -62,15 +62,22 @@ function wp_buttondown_settings_section_callback($args) {
 function wp_buttondown_settings_field_callback($args) {
 
   $setting = get_option('wp_buttondown_settings');
-  ?>
+
+  if (isset($setting['api_token'])) {
+    $token = wp_buttondown_decrypt_token($setting['api_token']);
+  } else {
+    $token = '';
+  }
   
+  ?>
+
   <h2>Buttondown settings</h2>
 
   <table class="form-table">
     <tr>
       <th>Buttondown API Token</th>
       <td>
-        <input type="text" name="api_token" value="<?php echo isset( $setting['api_token'] ) ? esc_attr( $setting['api_token'] ) : ''; ?>" required />
+        <input type="text" name="api_token" value="<?php echo esc_attr( $token ); ?>" required />
       </td>
     <tr>
     <tr>
@@ -162,7 +169,10 @@ function wp_buttondown_settings_page_html() {
   
   if (isset($_POST['api_token'])) {
 
-    $opts['api_token'] = sanitize_text_field($_POST['api_token']);
+    $token_sanitized = sanitize_text_field($_POST['api_token']);
+    $token_encrypted = wp_buttondown_encrypt_token($token_sanitized);
+
+    $opts['api_token'] = $token_encrypted;
     $opts['subscribe_page'] = sanitize_url($_POST['subscribe_page']);
     $opts['login'] = sanitize_text_field($_POST['login']);
     $opts['success'] = sanitize_text_field($_POST['success']);

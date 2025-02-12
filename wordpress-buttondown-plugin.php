@@ -36,10 +36,12 @@ function fetch_api_data($email = '') {
     $s = wp_buttondown_get_settings();
 
     $api_url = 'https://api.buttondown.com/v1/subscribers/' . urlencode($email);
+
+    $api_token = wp_buttondown_decrypt_token($s['api_token']);
     
     $args = array(
         'headers' => array(
-            'Authorization' => $s['api_token'],
+            'Authorization' => $api_token,
             'Accept' => 'application/json',
         )
     );
