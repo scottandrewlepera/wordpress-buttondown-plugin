@@ -21,9 +21,9 @@ function wp_buttondown_decrypt_token($encrypted_token) {
 function wp_buttondown_log( $data ) {
   if ( true === WP_DEBUG ) {
       if ( is_array( $data ) || is_object( $data ) ) {
-          error_log( 'wp_buttondown' . print_r( $data, true ) );
+          error_log( 'wp_buttondown: ' . print_r( $data, true ) );
       } else {
-          error_log( 'wp_buttondown' . $data );
+          error_log( 'wp_buttondown: ' . $data );
       }
   }
 }

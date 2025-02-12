@@ -14,6 +14,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 include 'utils.php';
 include 'settings.php';
 
+function write_log( $data ) {
+    if ( true === WP_DEBUG ) {
+        if ( is_array( $data ) || is_object( $data ) ) {
+            error_log( ">>> " . print_r( $data, true ) );
+        } else {
+            error_log( ">>> " . $data );
+        }
+    }
+}
+
+function wp_buttondown_query_vars( $qvars ) {
+    $qvars[] = 'wp_btndwn_r';
+    return $qvars;
+}
+add_filter( 'query_vars', 'wp_buttondown_query_vars' );
+
 function get_buttondown_subscription_status() {
 
     $s = wp_buttondown_get_settings();
@@ -91,26 +107,32 @@ function register_custom_api_endpoint() {
 }
 add_action('rest_api_init', 'register_custom_api_endpoint');
 
+function wp_buttondown_handle_redirect($route, $return_to = false) {
+    $dest = $route . (($return_to) ? "?wp_btndwn_r=$return_to" : '');
+    wp_redirect($dest);
+}
+
 function handle_wp_buttondown_request($request) {
 
     $s = wp_buttondown_get_settings();
 
     $email = sanitize_email($request->get_param('email'));
+    $return_to = is_numeric($request->get_param('return_to') ? $request->get_param('return_to') : false);
     
     if (empty($email)) {
-        wp_redirect($s['error']);
+        wp_buttondown_handle_redirect($s['error'], $return_to);
         exit();
     }
     
     $result = fetch_api_data($email);
 
     if ( isset( $result["error"] )) {
-        wp_redirect($s['error']);
+        wp_buttondown_handle_redirect($s['error'], $return_to);
         exit();
     }
 
     if ( isset( $result["nosub"] )) {
-        wp_redirect($s['nosub']);
+        wp_buttondown_handle_redirect($s['nosub'], $return_to);
         exit();
     }
 
@@ -124,7 +146,7 @@ function handle_wp_buttondown_request($request) {
         setcookie($key_is_premium, true, $expires, '/');
     }
     
-    wp_redirect($s['success']);
+    wp_buttondown_handle_redirect($s['success'], $return_to);
     exit();
 }
 
@@ -153,21 +175,40 @@ function do_wp_buttondown_premium_shortcode($atts, $content = null) {
 function do_wp_buttondown_notice($isPremium = false) {
     $s = wp_buttondown_get_settings();
     $subscriber_status = ($isPremium == true) ? 'premium' : '';
+    $return_to = get_the_ID();
     ob_start();
     ?>
     <div id="wp-buttondown-notice">
-        <p>This content is for <?= $subscriber_status ?> subscribers only!<br /><a href="<?= $s['login'] ?>">Log in here.</a></p>
+        <p>This content is for <?= $subscriber_status ?> subscribers only!<br /><a href="<?= $s['login'] ?>?wp_btndwn_r=<?= $return_to ?>">Log in here.</a></p>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+function do_wp_buttondown_success_message() {
+    $return_to = get_query_var("wp_btndwn_r", '');
+    ob_start();
+    ?>
+    <div id="wp-buttondown-notice">
+        <p>Confirmed! You’re a subscriber!</p>
+        <?php if (isset($return_to)) { ?>
+            <p><a href="<?= get_permalink($return_to) ?>">Continue</a></p>
+        <?php } ?>
     </div>
     <?php
     return ob_get_clean();
 }
 
 function do_wp_buttondown_check_form() {
+    $return_to = get_query_var('wp_btndwn_r', '');
     ob_start();
     ?>
     <form class="wp-buttondown-check" method="post" action="/wp-json/buttondown/v1/lookup">
         <p>Enter your email to confirm your subscription.<br />Your email will not be recorded.</p>
         <input type="email" name="email" required />
+        <?php if (!empty($return_to)) { ?>
+            <input type="hidden" name="return_to" value="<?php echo $return_to ?>" />
+        <?php } ?>
         <button>Submit</button>
     </form>
     <?php
@@ -182,5 +223,6 @@ function do_wp_buttondown_check_form() {
 add_shortcode('wp_buttondown_regular', 'do_wp_buttondown_regular_shortcode');
 add_shortcode('wp_buttondown_premium', 'do_wp_buttondown_premium_shortcode');
 add_shortcode('wp_buttondown_check_form', 'do_wp_buttondown_check_form');
+add_shortcode('wp_buttondown_success_message', 'do_wp_buttondown_success_message');
 
 ?>
