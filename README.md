@@ -4,13 +4,13 @@ Connect your [Buttondown](https://buttondown.com) newsletter to your Wordpress w
 
 ## How it works
 
-This plugin uses your Buttondown subscriber list as a "soft paywall" for special content on your Wordpress site. Once the plugin is set up, you can author Wordpress content can only be seen by your Buttondown subscribers. You can also create separate content for paid vs. free subscribers, encouraging paid subscriptions.
+This plugin uses your Buttondown subscriber list as a "soft paywall" for special content on your Wordpress site. Once the plugin is set up, you can author Wordpress content that can only be seen by your Buttondown subscribers. You can also create separate content for paid vs. free subscribers, encouraging paid subscriptions.
 
 Visitors will be asked to login with the email they used to subscribe to your Buttondown newsletter. The plugin then uses the [Buttondown API](https://docs.buttondown.com/api-introduction) to confirm if an email address is subscribed to your newsletter and if they are free or paid subscribers.
 
 ## Important caveats
 
-- This is a lightweight integration. There are no passwords involved, just a lookup to confirm an email is subscribed to your Buttondown newsletter.
+- This is a lightweight integration. There are no passwords involved, just a lookup to confirm an email is subscribed to your Buttondown newsletter. If you want a more robust solution, consider [JSON Web Tokens](https://jwt.io/).
 - Usage may subject your website to GDPR data protections, maybe? It's up to you to figure this out.
 
 ## Requirements
