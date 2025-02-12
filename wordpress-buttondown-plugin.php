@@ -30,6 +30,7 @@ function get_buttondown_subscription_status() {
 function fetch_api_data($email = '') {
 
     if (empty($email)) {
+        wp_buttondown_log('No email');
         return array('error' => true);
     }
 
@@ -47,8 +48,11 @@ function fetch_api_data($email = '') {
     );
 
     $response = wp_remote_get($api_url, $args);
+
+    wp_buttondown_log($response);
     
     if ( is_wp_error( $response ) ) {
+        wp_buttondown_log('is_wp_error');
         return array('error' => true);
     }
 
@@ -56,6 +60,7 @@ function fetch_api_data($email = '') {
     $data = json_decode( $body, true );
 
     if ( !isset( $data['subscriber_type'] ) ) {
+        wp_buttondown_log('no subscriber type');
         return array('nosub' => true);
     }
 
