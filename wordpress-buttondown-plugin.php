@@ -114,7 +114,7 @@ function handle_wp_buttondown_request($request) {
         exit();
     }
 
-    $expires = time() + 60 * 60 * 24 * 30; // one month
+    $expires = time() + 60 * 60 * 24 * 30 * 6; // six months
 
     if ( $result['is_regular'] || $result['is_premium'] ) {
         setcookie($s['regular_cookie'], true, $expires, '/');
