@@ -96,6 +96,11 @@ function handle_wp_buttondown_request($request) {
         wp_redirect($s['error']);
         exit();
     }
+
+    if (!isset($_POST['wp_buttondown_nonce']) || !wp_verify_nonce($_POST['wp_buttondown_nonce'])) {
+        wp_redirect($s['error']);
+        exit();
+    }
     
     $result = fetch_api_data($email);
 
@@ -162,6 +167,7 @@ function do_wp_buttondown_check_form() {
     ?>
     <form class="wp-buttondown-check" method="post" action="/wp-json/buttondown/v1/lookup">
         <p>Enter your email to confirm your subscription.<br />Your email will not be recorded.</p>
+        <?php wp_nonce_field(-1, 'wp_buttondown_nonce'); ?>
         <input type="email" name="email" required />
         <button>Submit</button>
     </form>
