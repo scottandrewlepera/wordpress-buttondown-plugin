@@ -7,17 +7,17 @@ include 'create-pages.php';
 function wp_buttondown_settings_init() {
 
   $opts = array(
-    'api_token' => '',
+    'api_token'      => '',
     'subscribe_page' => '',
-    'regular_cookie' => '',
-    'premium_cookie' => '',
-    'login' => 'buttondown-login',
-    'success' => 'buttondown-success',
-    'error' => 'buttondown-error',
-    'nosub' => 'buttondown-nosub',
+    'regular_cookie' => wp_buttondown_generate_cookie_name(),
+    'premium_cookie' => wp_buttondown_generate_cookie_name(),
+    'login'          => '/buttondown-login',
+    'success'        => '/buttondown-success',
+    'error'          => '/buttondown-error',
+    'nosub'          => '/buttondown-nosub',
   );
 
-  update_option('wp_buttondown_settings', $opts);
+  add_option('wp_buttondown_settings', $opts);
 
   register_setting(
     'wp_buttondown',
@@ -137,12 +137,17 @@ function wp_buttondown_settings_field_callback($args) {
   <?php
 }
 
+function wp_buttondown_generate_cookie_name() {
+  $valid = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLOMNOPQRSTUVWXYZ0129456789';
+  return substr(str_shuffle($valid), 0, 10);
+}
+
 function wp_buttondown_sanitize_cookie_name($name) {
   // Allowed characters
   $allowed_chars = "/[^!#$%&'*+\-.^_`|~A-Za-z0-9]/";
   // Remove any disallowed characters
   return preg_replace($allowed_chars, '', $name);
-} 
+}
 
 function wp_buttondown_settings_page_html() {
   if ( !current_user_can( 'manage_options' ) ) {

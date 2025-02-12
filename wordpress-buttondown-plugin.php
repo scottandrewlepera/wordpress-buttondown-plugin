@@ -11,15 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-include 'config.php';
+include 'utils.php';
 include 'settings.php';
 
 function get_buttondown_subscription_status() {
-    global $key_is_regular;
-    global $key_is_premium;
 
-    $is_regular = isset( $_COOKIE[$key_is_regular] );
-    $is_premium = isset( $_COOKIE[$key_is_premium] );
+    $s = wp_buttondown_get_settings();
+
+    $is_regular = isset( $_COOKIE[$s['regular_cookie']] );
+    $is_premium = isset( $_COOKIE[$s['premium_cookie']] );
 
     return array(
         'is_regular' => $is_regular,
@@ -33,15 +33,13 @@ function fetch_api_data($email = '') {
         return array('error' => true);
     }
 
-    global $api_key;
-    global $key_is_regular;
-    global $key_is_premium;
-    
+    $s = wp_buttondown_get_settings();
+
     $api_url = 'https://api.buttondown.com/v1/subscribers/' . urlencode($email);
     
     $args = array(
         'headers' => array(
-            'Authorization' => $api_key,
+            'Authorization' => $s['api_token'],
             'Accept' => 'application/json',
         )
     );
@@ -81,46 +79,45 @@ function register_custom_api_endpoint() {
                 return true;
             }
             return false;
-    }
+        }
     ));
 }
 add_action('rest_api_init', 'register_custom_api_endpoint');
 
 function handle_wp_buttondown_request($request) {
-    global $routes;
-    global $key_is_regular;
-    global $key_is_premium;
+
+    $s = wp_buttondown_get_settings();
 
     $email = sanitize_email($request->get_param('email'));
     
     if (empty($email)) {
-        wp_redirect($routes['error']);
+        wp_redirect($s['error']);
         exit();
     }
     
     $result = fetch_api_data($email);
 
     if ( isset( $result["error"] )) {
-        wp_redirect($routes['error']);
+        wp_redirect($s['error']);
         exit();
     }
 
     if ( isset( $result["nosub"] )) {
-        wp_redirect($routes['nosub']);
+        wp_redirect($s['nosub']);
         exit();
     }
 
     $expires = time() + 60 * 60 * 24 * 30; // one month
 
     if ( $result['is_regular'] || $result['is_premium'] ) {
-        setcookie($key_is_regular, true, $expires, '/');
+        setcookie($s['regular_cookie'], true, $expires, '/');
     }
 
     if ( $result['is_premium'] ) {
         setcookie($key_is_premium, true, $expires, '/');
     }
     
-    wp_redirect($routes['success']);
+    wp_redirect($s['success']);
     exit();
 }
 
@@ -147,12 +144,12 @@ function do_wp_buttondown_premium_shortcode($atts, $content = null) {
 }
 
 function do_wp_buttondown_notice($isPremium = false) {
-    global $routes;
+    $s = wp_buttondown_get_settings();
     $subscriber_status = ($isPremium == true) ? 'premium' : '';
     ob_start();
     ?>
     <div id="wp-buttondown-notice">
-        <p>This content is for <?= $subscriber_status ?> subscribers only!<br /><a href="<?= $routes['login'] ?>">Log in here.</a></p>
+        <p>This content is for <?= $subscriber_status ?> subscribers only!<br /><a href="<?= $s['login'] ?>">Log in here.</a></p>
     </div>
     <?php
     return ob_get_clean();
@@ -167,7 +164,8 @@ function do_wp_buttondown_check_form() {
         <button>Submit</button>
     </form>
     <?php
-    global $subscribe_page;
+    $s = wp_buttondown_get_settings();
+    $subscribe_page = $s['subscribe_page'];
     if ( isset($subscribe_page) && $subscribe_page != '' ) {
         echo( "<p>Not a subscriber? <a href=\"$subscribe_page\">Subscribe here!</a></p>" );
     }

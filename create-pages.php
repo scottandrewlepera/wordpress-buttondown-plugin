@@ -16,7 +16,14 @@ function wp_buttondown_settings_create_pages() {
     'nosub' => 'Sorry, there\'s no subscription for that email. Try again? [wp_buttondown_check_form]',
   );
 
-  global $routes;
+  $s = get_option('wp_buttondown_settings');
+
+  $routes = array(
+    'login' => $s['login'],
+    'error' => $s['error'],
+    'success' => $s['success'],
+    'nosub' => $s['nosub'],
+  );
 
   $status = array(
     'errors' => array(),
@@ -27,6 +34,9 @@ function wp_buttondown_settings_create_pages() {
   $run_after_insert_hooks = true;
 
   foreach ($routes as $key => $path) {
+    if ($path[0] != '/') {
+      $path = "/$path";
+    }
     $existing_page = get_page_by_path($path);
     if (!$existing_page) {
         $page_data = array(
