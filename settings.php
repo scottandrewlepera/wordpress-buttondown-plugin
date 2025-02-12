@@ -64,10 +64,7 @@ function wp_buttondown_settings_field_callback($args) {
   $setting = get_option('wp_buttondown_settings');
   ?>
   
-  <h2>Buttondown and cookie settings</h2>
-
-  <p>These settings allow the plugin to query your Buttondown mailing list and set the appropriate cookies based on subscription status.</p>
-  <p>Cookie names can be anything valid. To revoke access, change the cookie names.</p>
+  <h2>Buttondown settings</h2>
 
   <table class="form-table">
     <tr>
@@ -95,7 +92,7 @@ function wp_buttondown_settings_field_callback($args) {
       </td>
     </tr>
     <tr>
-      <th>Generate new cookies</th>
+      <th>Generate new cookies (optional)</th>
       <td>
         <input type="checkbox" name="regen_cookies" />
         <p class="description">This will log out all subscribers, forcing them to log in again.</p>
@@ -132,7 +129,7 @@ function wp_buttondown_settings_field_callback($args) {
       </td>
     </tr>
     <tr>
-      <th>Create pages on update</th>
+      <th>Create pages on update (optional)</th>
       <td>
         <input type="checkbox" name="create_pages" />
         <p class="description">This will create all the pages listed above if they don't already exist.</p>
@@ -159,31 +156,28 @@ function wp_buttondown_settings_page_html() {
     return;
   }
 
-  $s = wp_buttondown_get_settings();
+  $existing_opts = wp_buttondown_get_settings();
 
-  $new_opts = array();
+  $opts = wp_buttondown_get_settings();
   
   if (isset($_POST['api_token'])) {
 
-    $new_opts['api_token'] = sanitize_text_field($_POST['api_token']);
-    $new_opts['subscribe_page'] = sanitize_url($_POST['subscribe_page']);
-    $new_opts['login'] = sanitize_text_field($_POST['login']);
-    $new_opts['success'] = sanitize_text_field($_POST['success']);
-    $new_opts['error'] = sanitize_text_field($_POST['error']);
-    $new_opts['nosub'] = sanitize_text_field($_POST['nosub']);
+    $opts['api_token'] = sanitize_text_field($_POST['api_token']);
+    $opts['subscribe_page'] = sanitize_url($_POST['subscribe_page']);
+    $opts['login'] = sanitize_text_field($_POST['login']);
+    $opts['success'] = sanitize_text_field($_POST['success']);
+    $opts['error'] = sanitize_text_field($_POST['error']);
+    $opts['nosub'] = sanitize_text_field($_POST['nosub']);
 
     if (isset($_POST['regen_cookies'])) {
-      $new_opts['regular_cookie'] = wp_buttondown_generate_cookie_name();
-      $new_opts['premium_cookie'] = wp_buttondown_generate_cookie_name();
-    } else {
-      $new_opts['regular_cookie'] = $s['regular_cookie'];
-      $new_opts['premium_cookie'] = $s['premium_cookie'];
+      $opts['regular_cookie'] = wp_buttondown_generate_cookie_name();
+      $opts['premium_cookie'] = wp_buttondown_generate_cookie_name();
     }
   }
 
-  if ( count($new_opts) !== 0 ) {
+  if ($opts != $existing_opts) {
 
-    $success = update_option('wp_buttondown_settings', $new_opts);
+    $success = update_option('wp_buttondown_settings', $opts);
 
     if ($success === true) {
         echo '<div class="updated"><p>Settings updated.</p></div>';
