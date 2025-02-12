@@ -34,20 +34,15 @@ You'll need:
 
 Before you can use the plugin, you need to configure it. Go to **Settings > WP Buttondown** to see your configuration options.
 
-### Buttondown and cookie settings
+### Buttondown settings
 
 * **Buttondown API Token** - The API token from your Buttondown account. You will need to activate API usage on your account.
 * **Buttondown subscription page (optional)** - The URL of your Buttondown newsletter subscription page, either at buttondown.com or somewhere on your Wordpress site.
-* **Regular subscriber cookie name** - The name of the cookie used to identify a regular (free) subscriber.
-* **Premium subscriber cookie name** - The name of the cookie used to identify a premium (paid) subscriber.
-
-> ⚠️ The cookie names can be anything you want, but obvious values like "buttondown-subscriber" are not recommended because users can set these cookies themselves. Most people probably won't do this, but if you worry visitors are cheating, change the cookie names periodically.
+* **Generate new cookies (optional)** - Check this box to generate new cookies, forcing all vistors to login again on their next visit.
 
 ### Landing page configuration
 
 These are the pages that visitors will be redirected to for the login process. You must create these pages yourself, or the plugin can create them for you. The default values are there as suggestions.
-
-> ⚠️ The plugin cannot create pages that already exist. You must either delete the existing pages or choose different page names.
 
 > ⚠️ Landing pages are always top-level pages and cannot have a parent.
 
@@ -96,4 +91,5 @@ Steep tea bags in boiling water 5-10 minutes. Allow to cool. In a pitcher, combi
 ## Troubleshooting
 
 ### Blank page instead of redirect after login
-Check that your landing pages actually exist and that there are no typos.
+- Check that your landing pages actually exist and that there are no typos.
+- Make sure your Buttondown token exists and is correct.
