@@ -51,7 +51,7 @@ These are the pages that visitors will be redirected to for the login process. Y
 Once you've created the login page, you can place the login form on it with the `wp_buttondown_check_form` shortcode.
 
 ```
-[wp_buttondown_check_form]
+[wp_buttondown_login_form]
 ```
 
 This will create the following form:
