@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+define('WP_BUTTONDOWN_COOKIE_EXPIRY', 60 * 60 * 24 * 30 * 6);
+
 include 'utils.php';
 include 'settings.php';
 
@@ -72,7 +74,7 @@ function fetch_api_data($email = '') {
 
     $is_regular = isset( $data['subscriber_type'] ) && ( $data['subscriber_type'] == 'regular');
 
-    $is_premium = isset( $data['subscriber_type'] ) && ( $data['subscriber_type'] == 'premium' || ['subscriber_type'] == 'gifted');
+    $is_premium = isset( $data['subscriber_type'] ) && ( $data['subscriber_type'] == 'premium' || $data['subscriber_type'] == 'gifted');
 
     return array(
         'is_regular' => $is_regular,
@@ -88,6 +90,10 @@ function register_custom_api_endpoint() {
         'permission_callback' => function () {
             $origin = get_http_origin();
             $expected_origin = 'https://' . $_SERVER['SERVER_NAME'];
+            // TODO:
+            // return wp_verify_nonce($_POST['_wpnonce'], 'wp_buttondown_nonce') && 
+            // $origin === $expected_origin;
+                   $origin === $expected_origin;
             if ( $origin === $expected_origin ) {
                 return true;
             }
@@ -124,14 +130,26 @@ function handle_wp_buttondown_request($request) {
         wp_buttondown_handle_redirect($s['nosub'], $return_to);
     }
 
-    $expires = time() + 60 * 60 * 24 * 30 * 6; // six months
+    $expires = time() + WP_BUTTONDOWN_COOKIE_EXPIRY; // six months
 
     if ( $result['is_regular'] || $result['is_premium'] ) {
-        setcookie($s['regular_cookie'], true, $expires, '/');
+        setcookie($s['regular_cookie'], true, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ]);
     }
 
     if ( $result['is_premium'] ) {
-        setcookie($key_is_premium, true, $expires, '/');
+        setcookie($s['premium_cookie'], true, [
+            'expires' => $expires,
+            'path' => '/',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Strict'
+        ]);
     }
     
     wp_buttondown_handle_redirect($s['success'], $return_to);
@@ -164,7 +182,7 @@ function do_wp_buttondown_login_message($isPremium = false) {
     $return_to = get_the_ID();
     ob_start();
     ?>
-    <div id="wp-buttondown-notice wp-buttondown-login">
+    <div id="wp-buttondown-notice" class="wp-buttondown-login">
         <p>This content is for <?= $subscriber_status ?> subscribers only! <a href="<?= $s['login'] ?>?wp_btndwn_r=<?= $return_to ?>">Log in.</a></p>
     </div>
     <?php
@@ -176,13 +194,15 @@ function do_wp_buttondown_success_message() {
     $status = get_buttondown_subscription_status();
     ob_start();
     ?>
-    <div id="wp-buttondown-notice wp-buttondown-success">
+    <div id="wp-buttondown-notice" class="wp-buttondown-success">
         <p>Confirmed! You’re a subscriber!</p>
         <?php if ($status['is_regular'] || $status['is_premium']) { ?>
             <p>You now have access to subscriber-only content.</p>
         <?php } ?>
         <?php if ($status['is_premium']) { ?>
             <p>You also now have access to premium subscriber-only content.</p>
+        <?php } else { ?>
+            <p>Upgrade your subscription to access premium subscriber-only content.</p>
         <?php } ?>
         <?php if (!empty($return_to)) { ?>
             <p><a href="<?= get_permalink($return_to) ?>">Continue</a></p>
@@ -195,7 +215,7 @@ function do_wp_buttondown_success_message() {
 function wp_buttondown_recognized_message($return_to) {
     ob_start();
     ?>
-    <div id="wp-buttondown-notice wp-buttondown-recognized">
+    <div id="wp-buttondown-notice" class="wp-buttondown-recognized">
         <p>You're already logged in.</p>
         <?php if (!empty($return_to)) { ?>
             <p><a href="<?= get_permalink($return_to) ?>">Go back</a></p>

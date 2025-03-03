@@ -10,10 +10,10 @@ function wp_buttondown_settings_create_pages() {
   );
   
   $page_content = array(
-    'login' => '[wp_buttondown_check_form]',
-    'error' => 'Something went wrong. Try again? [wp_buttondown_check_form]',
-    'success' => 'Confirmed! You\'re a Buttondown subscriber! [wp_buttondown_regular]You have access to free subscriber-only content.[/wp_buttondown_regular] [wp_buttondown_premium]You also have access to paid content.[/wp_buttondown_premium]',
-    'nosub' => 'Sorry, there\'s no subscription for that email. Try again? [wp_buttondown_check_form]',
+    'login' => '[wp_buttondown_login_form]',
+    'error' => 'Something went wrong. Try again? [wp_buttondown_login_form]',
+    'success' => '[wp_buttondown_success_message]',
+    'nosub' => 'Sorry, there\'s no subscription for that email. Try again? [wp_buttondown_login_form]',
   );
 
   $s = get_option('wp_buttondown_settings');
