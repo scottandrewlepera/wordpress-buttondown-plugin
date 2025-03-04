@@ -1,10 +1,24 @@
 <?php
-/**
- * Plugin Name: WP Buttondown (Beta)
- * Description: Create subscriber-only content on your Wordpress site for your Buttondown list subscribers.
- * Version: 0.1.0   
+ /**
+ * Plugin Name: WP Buttondown
+ * Plugin URI: https://github.com/yourusername/wordpress-buttondown-plugin
+ * Description: Create subscriber-only content on your WordPress site for your Buttondown list subscribers.
+ * Version: 1.0.0
+ * Requires at least: 5.2
+ * Requires PHP: 7.4
  * Author: Scott Andrew LePera
  * Author URI: https://scottandrew.com
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * 
+ * WP Buttondown is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ * 
+ * @category Subscription
+ * @author Scott Andrew LePera
+ * @copyright Copyright (c) 2024 Scott Andrew LePera
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
