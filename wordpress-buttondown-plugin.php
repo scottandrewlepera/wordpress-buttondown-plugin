@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define('WP_BUTTONDOWN_COOKIE_EXPIRY', 60 * 60 * 24 * 30 * 6);
+define('WP_BUTTONDOWN_IS_SECURE', !empty($_SERVER['HTTPS']));
 
 include 'utils.php';
 include 'settings.php';
@@ -89,7 +90,7 @@ function register_custom_api_endpoint() {
         'callback' => 'handle_wp_buttondown_request',
         'permission_callback' => function ($request) {
             $origin = get_http_origin();
-            $expected_origin = 'https://' . $_SERVER['SERVER_NAME'];
+            $expected_origin = 'http' . (WP_BUTTONDOWN_IS_SECURE ? 's' : '') . '://' . $_SERVER['SERVER_NAME'];
             $nonce = $request->get_param('_wpnonce');
             return (
                 $origin === $expected_origin &&
@@ -133,8 +134,8 @@ function handle_wp_buttondown_request($request) {
         setcookie($s['regular_cookie'], true, [
             'expires' => $expires,
             'path' => '/',
-            'secure' => true,
-            'httponly' => true,
+            'secure' => WP_BUTTONDOWN_IS_SECURE,
+            'httponly' => WP_BUTTONDOWN_IS_SECURE,
             'samesite' => 'Strict'
         ]);
     }
@@ -143,8 +144,8 @@ function handle_wp_buttondown_request($request) {
         setcookie($s['premium_cookie'], true, [
             'expires' => $expires,
             'path' => '/',
-            'secure' => true,
-            'httponly' => true,
+            'secure' => WP_BUTTONDOWN_IS_SECURE,
+            'httponly' => WP_BUTTONDOWN_IS_SECURE,
             'samesite' => 'Strict'
         ]);
     }
