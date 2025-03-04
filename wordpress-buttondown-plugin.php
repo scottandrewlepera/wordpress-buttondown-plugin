@@ -87,17 +87,14 @@ function register_custom_api_endpoint() {
     register_rest_route('buttondown/v1', '/lookup/', array(
         'methods' => 'POST',
         'callback' => 'handle_wp_buttondown_request',
-        'permission_callback' => function () {
+        'permission_callback' => function ($request) {
             $origin = get_http_origin();
             $expected_origin = 'https://' . $_SERVER['SERVER_NAME'];
-            // TODO:
-            // return wp_verify_nonce($_POST['_wpnonce'], 'wp_buttondown_nonce') && 
-            // $origin === $expected_origin;
-                   $origin === $expected_origin;
-            if ( $origin === $expected_origin ) {
-                return true;
-            }
-            return false;
+            $nonce = $request->get_param('_wpnonce');
+            return (
+                $origin === $expected_origin &&
+                wp_verify_nonce($nonce, 'wp_rest')
+            );
         }
     ));
 }
@@ -239,7 +236,9 @@ function wp_buttondown_render_login_form($return_to) {
         <input type="email" name="email" required />
         <?php if (!empty($return_to)) { ?>
             <input type="hidden" name="return_to" value="<?= $return_to ?>" />
-        <?php } ?>
+        <?php } 
+        wp_nonce_field('wp_rest');
+        ?>
         <button>Submit</button>
     </form>
     <?php
