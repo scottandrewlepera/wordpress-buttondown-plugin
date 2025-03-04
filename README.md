@@ -1,4 +1,4 @@
-# Wordpress + Buttondown Integration Plugin (Beta)
+# Wordpress + Buttondown Plugin
 
 Connect your [Buttondown](https://buttondown.com) newsletter to your Wordpress website and encourage subscriptions with subscribers-only content.
 
@@ -40,15 +40,17 @@ Before you can use the plugin, you need to configure it. Go to **Settings > WP B
 * **Buttondown subscription page (optional)** - The URL of your Buttondown newsletter subscription page, either at buttondown.com or somewhere on your Wordpress site.
 * **Generate new cookies (optional)** - Check this box to generate new cookies, forcing all vistors to login again on their next visit.
 
-### Landing page configuration
+### Login and landing page configuration
 
-These are the pages that visitors will be redirected to for the login process. You must create these pages yourself, or the plugin can create them for you. The default values are there as suggestions.
+These are the pages that visitors will be redirected to for the login process. You must either create these pages yourself or the plugin can create them for you. The plugin provides default values you can use.
+
+To have the plugin create the landing pages, check the **Create pages on update** checkbox before saving your settings.
 
 NOTE: Landing pages are always top-level pages and cannot have a parent.
 
-### Adding the login form
+### Adding the login form to any page
 
-Once you've created the login page, you can place the login form on it with the `wp_buttondown_login_form` shortcode.
+Use the `wp_buttondown_login_form` shortcode to add the login form to any post or page that allows shortcodes.
 
 ```
 [wp_buttondown_login_form]
@@ -58,7 +60,7 @@ This will create the following form:
 
 <img src="./login-form-sample.png" style="max-width: 500px;" />
 
-You can also place this form on any post or page that allows shortcodes.
+### Testing the plugin
 
 Test your setup by submitting a valid email address that is subscribed to your Buttondown newsletter. If all is working correctly, the browser will be redirected to the "success" page specified in the plugin settings.
 
@@ -66,12 +68,16 @@ Test your setup by submitting a valid email address that is subscribed to your B
 
 To create content that is only visible to subscribers, use the `wp_buttondown_regular` and `wp_buttondown_premium` shortcodes to enclose that content.
 
+NOTE: Premium subscribers also have access to regular content by default, so you should not need to duplicate content for both free and premium subscribers.
+
 ```
 <!-- This content will only be shown to both free and paid subscribers -->
 
 [wp_buttondown_regular]
+
 <h2>Secret Plans</h2>
 <a href="/secret-plans.pdf">Download a PDF of my Secret Plans!</a>
+
 [/wp_buttondown_regular]
 
 <!-- This content will only be shown to paid subscribers -->
@@ -79,17 +85,22 @@ To create content that is only visible to subscribers, use the `wp_buttondown_re
 <h2>My Grandmother's Cranberry Dandelion Tea</h2>
 
 [wp<_buttondown_premium]
+
 - 1/2 cup unsweetened cranderry juice
 - 1-2 tea bags roasted dandelion root tea
 - Lemon juice
 
 Steep tea bags in boiling water 5-10 minutes. Allow to cool. In a pitcher, combine cranberry juice with four (4) cups cold water. Add tea and stir. Add lemon juice to taste. Serve chilled or with ice.
+
 [/wp_buttondown_premium]
 
 ```
 
 ## Troubleshooting
 
-### Blank page instead of redirect after login
+### Blank page or JSON error instead of redirect after login
 - Check that your landing pages actually exist and that there are no typos.
 - Make sure your Buttondown token exists and is correct.
+
+### The login form shows "temporarily offline" message
+This usually means your API token can't be retrieved. This happens if you migrate your site to another host or domain. To fix this, visit the settings page and re-enter your API token.
