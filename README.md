@@ -44,11 +44,11 @@ Before you can use the plugin, you need to configure it. Go to **Settings > WP B
 
 These are the pages that visitors will be redirected to for the login process. You must create these pages yourself, or the plugin can create them for you. The default values are there as suggestions.
 
-> ⚠️ Landing pages are always top-level pages and cannot have a parent.
+NOTE: Landing pages are always top-level pages and cannot have a parent.
 
 ### Adding the login form
 
-Once you've created the login page, you can place the login form on it with the `wp_buttondown_check_form` shortcode.
+Once you've created the login page, you can place the login form on it with the `wp_buttondown_login_form` shortcode.
 
 ```
 [wp_buttondown_login_form]
@@ -64,17 +64,17 @@ Test your setup by submitting a valid email address that is subscribed to your B
 
 ## Creating subscriber-only content
 
-To create content that is only visible to subscribers, use the `wp_buttondown_regular` and `wp_buttondown_premium` shorcodes to enclose that content.
+To create content that is only visible to subscribers, use the `wp_buttondown_regular` and `wp_buttondown_premium` shortcodes to enclose that content.
 
 ```
-/* This content will only be shown to both free and paid subscribers */
+<!-- This content will only be shown to both free and paid subscribers -->
 
 [wp_buttondown_regular]
 <h2>Secret Plans</h2>
 <a href="/secret-plans.pdf">Download a PDF of my Secret Plans!</a>
 [/wp_buttondown_regular]
 
-/* This content will only be shown to paid subscribers */
+<!-- This content will only be shown to paid subscribers -->
 
 <h2>My Grandmother's Cranberry Dandelion Tea</h2>
 
