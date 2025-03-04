@@ -192,14 +192,12 @@ function do_wp_buttondown_success_message() {
     ob_start();
     ?>
     <div id="wp-buttondown-notice" class="wp-buttondown-success">
-        <p>Confirmed! You’re a subscriber!</p>
         <?php if ($status['is_regular'] || $status['is_premium']) { ?>
-            <p>You now have access to subscriber-only content.</p>
+            <p>Confirmed! You’re a subscriber!</p>
+            <p>You now have access to free subscriber-only content.</p>
         <?php } ?>
         <?php if ($status['is_premium']) { ?>
             <p>You also now have access to premium subscriber-only content.</p>
-        <?php } else { ?>
-            <p>Upgrade your subscription to access premium subscriber-only content.</p>
         <?php } ?>
         <?php if (!empty($return_to)) { ?>
             <p><a href="<?= get_permalink($return_to) ?>">Continue</a></p>
