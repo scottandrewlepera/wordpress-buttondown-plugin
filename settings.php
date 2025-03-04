@@ -45,7 +45,7 @@ add_action( 'admin_init', 'wp_buttondown_settings_init' );
 // register the page and add it as a Settings submenu
 function wp_buttondown_settings_page() {
   $hookname = add_options_page(
-      'WP Buttondown (Beta)',
+      'WP Buttondown',
       'WP Buttondown',
       'manage_options',
       'wp_buttondown',
