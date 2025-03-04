@@ -135,7 +135,7 @@ function handle_wp_buttondown_request($request) {
             'expires' => $expires,
             'path' => '/',
             'secure' => WP_BUTTONDOWN_IS_SECURE,
-            'httponly' => WP_BUTTONDOWN_IS_SECURE,
+            'httponly' => true,
             'samesite' => 'Strict'
         ]);
     }
@@ -145,7 +145,7 @@ function handle_wp_buttondown_request($request) {
             'expires' => $expires,
             'path' => '/',
             'secure' => WP_BUTTONDOWN_IS_SECURE,
-            'httponly' => WP_BUTTONDOWN_IS_SECURE,
+            'httponly' => true,
             'samesite' => 'Strict'
         ]);
     }
