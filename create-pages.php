@@ -2,6 +2,13 @@
 
 function wp_buttondown_settings_create_pages() {
 
+  if (!current_user_can('manage_options')) {
+    return array(
+      'errors' => array('Insufficient permissions'),
+      'code' => 2
+    );
+  }
+
   $page_titles = array(
     'login' => 'Log in',
     'error' => 'Error',
