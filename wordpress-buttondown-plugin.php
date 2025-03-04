@@ -154,10 +154,9 @@ function handle_wp_buttondown_request($request) {
 }
 
 function do_wp_buttondown_regular_shortcode($atts, $content = null) {
-
     $status = get_buttondown_subscription_status();
-
-    if ( $status['is_regular'] ) {
+    /* premium subscribers can see regular content */
+    if ( $status['is_regular'] || $status['is_premium'] ) {
         return do_shortcode($content);
     } else {
         return do_wp_buttondown_login_message();
@@ -166,7 +165,6 @@ function do_wp_buttondown_regular_shortcode($atts, $content = null) {
 
 function do_wp_buttondown_premium_shortcode($atts, $content = null) {
     $status = get_buttondown_subscription_status();
-
     if ( $status['is_premium'] ) {
         return do_shortcode($content);
     } else {
@@ -176,7 +174,7 @@ function do_wp_buttondown_premium_shortcode($atts, $content = null) {
 
 function do_wp_buttondown_login_message($isPremium = false) {
     $s = wp_buttondown_get_settings();
-    $subscriber_status = ($isPremium == true) ? 'premium' : '';
+    $subscriber_status = ($isPremium == true) ? 'premium' : 'free';
     $return_to = get_the_ID();
     ob_start();
     ?>
@@ -228,6 +226,14 @@ function wp_buttondown_is_logged_in() {
 }
 
 function wp_buttondown_render_login_form($return_to) {
+    $s = wp_buttondown_get_settings();
+    $token = wp_buttondown_decrypt_token($s['api_token']);
+
+    /* if the token is unabled to be decrypted, the login is offline */ 
+    if (empty($token)) {
+        return "<p>The login is temporarily offline.</p><p>Please contact the site owner.</p>";
+    }
+
     ob_start();
     ?>
     <form class="wp-buttondown-check" method="post" action="/wp-json/buttondown/v1/lookup">
