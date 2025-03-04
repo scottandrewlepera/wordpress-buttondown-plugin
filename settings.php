@@ -63,10 +63,10 @@ function wp_buttondown_settings_field_callback($args) {
 
   $setting = get_option('wp_buttondown_settings');
 
-  if (isset($setting['api_token'])) {
-    $token = wp_buttondown_decrypt_token($setting['api_token']);
-  } else {
-    $token = '';
+  $token = wp_buttondown_decrypt_token($setting['api_token']);
+
+  if (empty($token)) {
+    echo "<div class=\"error\">API token could not be decrypted. Please re-enter the API token below.</div>";
   }
   
   ?>
@@ -78,12 +78,14 @@ function wp_buttondown_settings_field_callback($args) {
       <th>Buttondown API Token</th>
       <td>
         <input type="text" name="api_token" value="<?php echo esc_attr( $token ); ?>" required />
+        <p class="description">This token is used to authenticate with the Buttondown API. You can find it in your Buttondown account settings.</p>
       </td>
     <tr>
     <tr>
       <th>Buttondown subscription page (optional)</th>
       <td>
         <input type="text" name="subscribe_page" value="<?php echo isset( $setting['subscribe_page'] ) ? esc_attr( $setting['subscribe_page'] ) : ''; ?>" placeholder="https://buttondown.com/your-cool-newsletter/" />
+        <p class="description">This is the page where users can subscribe to your newsletter. If set, a link will be shown on the login page.</p>
       </td>
     <tr>
     <tr>
@@ -107,32 +109,37 @@ function wp_buttondown_settings_field_callback($args) {
     </tr>
   </table>
 
-  <h2>Landing page configuration</h2>
-  <p>These are the pages that visitors will be redirected to for the login process. You must create these pages yourself, or the plugin can create them for you.</p>
+  <h2>Login and landing page configuration</h2>
+  
+  <p class="description">These are the pages that visitors will be redirected to for the login process. You must create these pages yourself, or the plugin can create them for you.</p>
 
   <table class="form-table">
     <tr>
       <th>Login page</th>
       <td>
         <input type="text" name="login" value="<?php echo isset( $setting['login'] ) ? esc_attr( $setting['login'] ) : ''; ?>" required />
+        <p class="description">This is the page where users can log in with their Buttondown email.</p>
       </td>
     </tr>
     <tr>
       <th>Success landing page</th>
       <td>
         <input type="text" name="success" value="<?php echo isset( $setting['success'] ) ? esc_attr( $setting['success'] ) : ''; ?>" required />
+        <p class="description">This is the page that users will be redirected to after successfully logging in.</p>
       </td>
     </tr>
     <tr>
       <th>Error landing page</th>
       <td>
         <input type="text" name="error" value="<?php echo isset( $setting['error'] ) ? esc_attr( $setting['error'] ) : ''; ?>" required />
+        <p class="description">This is the page that users will be redirected to if there is an error during the login process.</p>
       </td>
     </tr>
     <tr>
       <th>No subscription landing page</th>
       <td>
         <input type="text" name="nosub" value="<?php echo isset( $setting['nosub'] ) ? esc_attr( $setting['nosub'] ) : ''; ?>" required />
+        <p class="description">This is the page that users will be redirected to if there is no subscription for the email they entered.</p>
       </td>
     </tr>
     <tr>
@@ -147,15 +154,7 @@ function wp_buttondown_settings_field_callback($args) {
 }
 
 function wp_buttondown_generate_cookie_name() {
-  $valid = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLOMNOPQRSTUVWXYZ0129456789';
-  return substr(str_shuffle($valid), 0, 10);
-}
-
-function wp_buttondown_sanitize_cookie_name($name) {
-  // Allowed characters
-  $allowed_chars = "/[^!#$%&'*+\-.^_`|~A-Za-z0-9]/";
-  // Remove any disallowed characters
-  return preg_replace($allowed_chars, '', $name);
+  return wp_generate_password(12, false, false);
 }
 
 function wp_buttondown_settings_page_html() {
