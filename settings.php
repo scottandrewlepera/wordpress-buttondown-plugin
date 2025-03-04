@@ -173,10 +173,10 @@ function wp_buttondown_settings_page_html() {
 
     $opts['api_token'] = $token_encrypted;
     $opts['subscribe_page'] = sanitize_url($_POST['subscribe_page']);
-    $opts['login'] = sanitize_text_field($_POST['login']);
-    $opts['success'] = sanitize_text_field($_POST['success']);
-    $opts['error'] = sanitize_text_field($_POST['error']);
-    $opts['nosub'] = sanitize_text_field($_POST['nosub']);
+    $opts['login'] = sanitize_text_field("/" . ltrim($_POST['login'], "/"));
+    $opts['success'] = sanitize_text_field("/" . ltrim($_POST['success'], "/"));
+    $opts['error'] = sanitize_text_field("/" . ltrim($_POST['error'], "/"));
+    $opts['nosub'] = sanitize_text_field("/" . ltrim($_POST['nosub'], "/"));
 
     if (isset($_POST['regen_cookies'])) {
       $opts['regular_cookie'] = wp_buttondown_generate_cookie_name();
